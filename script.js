@@ -8,8 +8,9 @@ const scene = new THREE.Scene();
 //Camera
 //Main camera
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200000);
-camera.position.set(0, 0, 1500);
+camera.position.set(0, 500, 800);
 
+/*
 //Earth camera
 const earthCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200000);
 earthCamera.position.clone(camera.position);
@@ -21,6 +22,7 @@ const moonCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.in
 moonCamera.position.clone(camera.position);
 const moonOffset = new THREE.Vector3(0, 0, -60);
 const moonInterpolationFactor = 0.1;
+*/
 
 //Rendering
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -34,9 +36,18 @@ scene.add(sunLight);
 
 //Controls
 var controls = new OrbitControls(camera, renderer.domElement);
-/*controls.minDistance = 120;
-controls.maxDistance = 1050;*/
+controls.minDistance = 120;
+controls.maxDistance = 4000;
 controls.screenSpaceSpanning = true;
+
+//Window control when resized
+window.addEventListener('resize', redimension);
+function redimension() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.render(scene, camera);
+}
 
 //Textures
 var textureLoader = new THREE.TextureLoader();
@@ -52,8 +63,8 @@ var uranusTexture = textureLoader.load('./Textures/uranus-texture.jpg');
 var neptuneTexture = textureLoader.load('./Textures/neptune-texture.jpg');
 
 //Random theta generator
-function randomTheta () {
-    var randomThetaValue = Math.random()*360;
+function randomTheta() {
+    var randomThetaValue = Math.random() * 360;
     return randomThetaValue;
 }
 
@@ -111,72 +122,73 @@ scene.add(neptune);
 var mainAnimation = function () {
     requestAnimationFrame(mainAnimation);
 
-    //Earth animations based on sun's position (distance from earth to sun = 400*distance from earth to moon)
-    earth.theta -= 0.005;
-    const earthOrbitRadius = 351  //11700x earth's diameter(radius*2), made 1.5/100x real distance (original 23400)
-    earth.rotation.y += 0.05;
+    //Earth animations based on sun's position
+    earth.theta -= 0.005;                   //Value used as an example
+    const earthOrbitRadius = 351            //11700x earth's diameter(radius*2), made 1.5/100x real distance (original 23400)
+    earth.rotation.y += 0.05;               //Value used as an example
     earth.position.x = sun.position.x + earthOrbitRadius * Math.cos(earth.theta);
     earth.position.z = sun.position.z + earthOrbitRadius * Math.sin(earth.theta);
 
     //Moon animations based on earth's position and rotation
-    moon.theta -= 0.02;
-    const moonOrbitRadius = 30;  //30x earth's diameter(radius*2), it's original (30)
-    moon.rotation.y += 0.005;
+    moon.theta -= 0.00017;                  //0.034x earth's orbitational speed
+    const moonOrbitRadius = 30;             //30x earth's diameter(radius*2), it's original (30)
+    moon.rotation.y += 0.005;               //Matching the earth's theta so the moon always faces earth
     moon.position.x = earth.position.x + moonOrbitRadius * Math.cos(moon.theta);
     moon.position.z = earth.position.z + moonOrbitRadius * Math.sin(moon.theta);
 
-    //Mercury animations based on sun's position (0.39x earth-sun distance)
-    mercury.theta -= 0.0012; //0.24x earth's orbitational speed
-    const mercuryOrbitRadius = 136.89;  //0.39x earth-sun distance
-    mercury.rotation.y += 0.008;  //0.16x earth's rotation speed
+    //Mercury animations based on sun's position
+    mercury.theta -= 0.0012;                //0.24x earth's orbitational speed
+    const mercuryOrbitRadius = earthOrbitRadius*0.39;      //0.39x earth-sun distance
+    mercury.rotation.y += 0.008;            //0.16x earth's rotation speed
     mercury.position.x = sun.position.x + mercuryOrbitRadius * Math.cos(mercury.theta);
     mercury.position.z = sun.position.z + mercuryOrbitRadius * Math.sin(mercury.theta);
 
-    //Venus animations based on sun's position (0.72x earth-sun distance)
-    venus.theta -= 0.0031; //0.62x earth's orbitational speed
-    const venusOrbitRadius = 252.72;  //0.72x earth-sun distance
-    venus.rotation.y += 0.019; //0.38x earth's rotation speed
+    //Venus animations based on sun's position
+    venus.theta -= 0.0031;                  //0.62x earth's orbitational speed
+    const venusOrbitRadius = earthOrbitRadius*0.72;        //0.72x earth-sun distance
+    venus.rotation.y += 0.019;              //0.38x earth's rotation speed
     venus.position.x = sun.position.x + venusOrbitRadius * Math.cos(venus.theta);
     venus.position.z = sun.position.z + venusOrbitRadius * Math.sin(venus.theta);
 
-    //Mars animations based on sun's position (1.52x earth-sun distance)
-    mars.theta -= 0.004; //0.8x earth's orbitational speed
-    const marsOrbitRadius = 533.52;  //1.52x earth-sun distance
-    mars.rotation.y += 0.0515; //1.03x earth's rotation speed
+    //Mars animations based on sun's position
+    mars.theta -= 0.004;                    //0.8x earth's orbitational speed
+    const marsOrbitRadius = earthOrbitRadius*1.52;         //1.52x earth-sun distance
+    mars.rotation.y += 0.0515;              //1.03x earth's rotation speed
     mars.position.x = sun.position.x + marsOrbitRadius * Math.cos(mars.theta);
     mars.position.z = sun.position.z + marsOrbitRadius * Math.sin(mars.theta);
 
-    //Jupiter animations based on sun's position (5.20x earth-sun distance)
-    jupiter.theta -= 0.0125; //2.50x earth's orbitational speed
-    const jupiterOrbitRadius = 912.6;  //5.20x earth-sun distance, made 0.5x original size (1825.2)
-    jupiter.rotation.y += 0.0205; //0.41x earth's rotation speed
+    //Jupiter animations based on sun's position
+    jupiter.theta -= 0.0125;                //2.50x earth's orbitational speed
+    const jupiterOrbitRadius = earthOrbitRadius*5.20*0.5;       //5.20x earth-sun distance, made 0.5x original size (1825.2)
+    jupiter.rotation.y += 0.0205;           //0.41x earth's rotation speed
     jupiter.position.x = sun.position.x + jupiterOrbitRadius * Math.cos(jupiter.theta);
     jupiter.position.z = sun.position.z + jupiterOrbitRadius * Math.sin(jupiter.theta);
 
-    //Saturn animations based on sun's position (9.58x earth-sun distance)
-    saturn.theta -= 0.00975; //1.95x earth's orbitational speed
-    const saturnOrbitRadius = 1120.86;  //9.58x earth-sun distance, made 1/3x original size (3362.58)
-    saturn.rotation.y += 0.022; //0.44x earth's rotation speed
+    //Saturn animations based on sun's position
+    saturn.theta -= 0.00975;                //1.95x earth's orbitational speed
+    const saturnOrbitRadius = earthOrbitRadius*9.58/3;      //9.58x earth-sun distance, made 1/3x original size (3362.58)
+    saturn.rotation.y += 0.022;             //0.44x earth's rotation speed
     saturn.position.x = sun.position.x + saturnOrbitRadius * Math.cos(saturn.theta);
     saturn.position.z = sun.position.z + saturnOrbitRadius * Math.sin(saturn.theta);
 
-    //Uranus animations based on sun's position (19.22x earth-sun distance)
-    uranus.theta -= 0.0052; //1.04x earth's orbitational speed
-    const uranusOrbitRadius = 1349.244;  //19.22x earth-sun distance, made 0.2x the original size (10547.55)
-    uranus.rotation.y += 0.036; //0.72x earth's rotation speed
+    //Uranus animations based on sun's position
+    uranus.theta -= 0.0052;                 //1.04x earth's orbitational speed
+    const uranusOrbitRadius = earthOrbitRadius*19.22*0.2;     //19.22x earth-sun distance, made 0.2x the original size (10547.55)
+    uranus.rotation.y += 0.036;             //0.72x earth's rotation speed
     uranus.position.x = sun.position.x + uranusOrbitRadius * Math.cos(uranus.theta);
     uranus.position.z = sun.position.z + uranusOrbitRadius * Math.sin(uranus.theta);
 
-    //neptune animations based on sun's position (30.05x earth-sun distance)
-    neptune.theta -= 0.0035; //0.70x earth's orbitational speed
-    const neptuneOrbitRadius = 1582.1325;  //30.05x earth-sun distance, made 0.15x the original size (10547.55)
-    neptune.rotation.y += 0.0335; //0.67x earth's rotation speed
+    //neptune animations based on sun's position
+    neptune.theta -= 0.0035;                //0.70x earth's orbitational speed
+    const neptuneOrbitRadius = earthOrbitRadius*30.05*0.15;   //30.05x earth-sun distance, made 0.15x the original size (10547.55)
+    neptune.rotation.y += 0.0335;           //0.67x earth's rotation speed
     neptune.position.x = sun.position.x + neptuneOrbitRadius * Math.cos(neptune.theta);
     neptune.position.z = sun.position.z + neptuneOrbitRadius * Math.sin(neptune.theta);
 
     renderer.render(scene, camera);
 }
 
+/*
 var earthPOV = function () {
     requestAnimationFrame(earthPOV);
     const earthCameraTargetPosition = earth.position.clone().add(earthOffset);
@@ -192,5 +204,6 @@ var moonPOV = function () {
     moonCamera.lookAt(moon.position);
     renderer.render(scene, moonCamera);
 }
+*/
 
 mainAnimation();

@@ -1,5 +1,4 @@
-import * as THREE from './THREE/three.module.js';
-import { OrbitControls } from './THREE/OrbitControls.js';
+import * as THREE from "https://cdn.skypack.dev/three@0.129.0/build/three.module.js";
 
 /**
  * Function to create a spherical object in a faster and easier way.
